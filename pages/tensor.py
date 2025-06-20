@@ -10,17 +10,21 @@ from typing import Optional, Dict, Any
 """
 
 power_in_people_block_selector = (By.CSS_SELECTOR, '.tensor_ru-Index__block4-bg')
+get_more_info_link_selector = (By.CSS_SELECTOR, '.tensor_ru-Index__block4-bg a.tensor_ru-link.tensor_ru-Index__link')
 
 
-
-class TensorAbout(BasePage):
+class TensorPage(BasePage):
     def __init__(self, browser):
         """
         Метод конструктор для страницы https://tensor.ru/about
         :param browser:
         """
         super().__init__(browser)
+        self.page_url = 'https://tensor.ru/'
 
-    def open(self):
-        with allure.step('Open https://tensor.ru/ page'):
-            self.browser.get('https://tensor.ru/')
+    @property
+    def tensor_block_exists(self) -> bool:
+        return self.find(power_in_people_block_selector).is_displayed()
+    @property
+    def tensor_block_get_more_info_link(self) -> str:
+        return self.find(get_more_info_link_selector).get_attribute('href')
