@@ -16,6 +16,7 @@ from typing import Any
 tensor_banner_link = (By.CSS_SELECTOR, '#contacts_clients a.sbisru-Contacts__logo-tensor.mb-12')
 change_rg_link_button = (By.CSS_SELECTOR, '.sbisru-Contacts__relative span.sbis_ru-Region-Chooser__text.sbis_ru-link')
 title = (By.TAG_NAME, 'title')
+# Сделать уникальный или индекс
 partner_selector = (By.CSS_SELECTOR, '.controls-ListView__itemContent')
 rg_choice_panel = (By.CSS_SELECTOR, '.sbis_ru-Region-Panel')
 rg_41_selector = (By.XPATH, '//span[@title="Камчатский край"]')
@@ -44,7 +45,7 @@ class Contacts(BasePage):
         return self.find(tensor_banner_link).is_displayed()
 
 
-    def contacts_section_change_rg_button_link(self) -> Any:
+    def contacts_section_change_rg_button_link(self) -> str:
         return self.find(change_rg_link_button)
 
     @property
@@ -52,10 +53,10 @@ class Contacts(BasePage):
         return self.find(change_rg_link_button).is_displayed()
 
     @property
-    def contacts_section_rg_is_correct(self) -> bool:
+    def contacts_section_rg_is_correct(self,browser):
         partners_list = self.find_all(partner_selector)
         page_title = self.find(title).text
-        rg_button_change_text = self.contacts_section_change_rg_button_link.text
+        rg_button_change_text = self.contacts_section_change_rg_button_link
         print(len(partners_list) > 0,page_title,rg_button_change_text)
         return True if (len(partners_list) > 0) and (page_title.__contains__('Москва')) and (rg_button_change_text.__contains__('Москва')) else False
 
