@@ -1,8 +1,5 @@
-import allure
-
-from conftest import browser
 from pages.base_page import BasePage
-from selenium.webdriver.common.by import By
+from pages.selectors import ContactsPageSelectors
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from typing import Any
@@ -13,13 +10,6 @@ from typing import Any
 Ярославская обл.) и есть список партнеров.
 """
 
-tensor_banner_link = (By.CSS_SELECTOR, '#contacts_clients a.sbisru-Contacts__logo-tensor.mb-12')
-change_rg_link_button = (By.CSS_SELECTOR, '.sbisru-Contacts__relative span.sbis_ru-Region-Chooser__text.sbis_ru-link')
-title = (By.TAG_NAME, 'title')
-# Сделать уникальный или индекс
-partner_selector = (By.CSS_SELECTOR, '.controls-ListView__itemContent')
-rg_choice_panel = (By.CSS_SELECTOR, '.sbis_ru-Region-Panel')
-rg_41_selector = (By.XPATH, '//span[@title="Камчатский край"]')
 
 class Contacts(BasePage):
     def __init__(self, browser):
@@ -29,47 +19,56 @@ class Contacts(BasePage):
         """
         super().__init__(browser)
         self.page_url = 'https://saby.ru/contacts/77-moskva?tab=clients'
+        self.browser = browser
 
-    @property
-    def tensor_banner_link(self) -> Any:
-        return self.find(tensor_banner_link)
-
-    def tensor_banner_link_click(self) -> Any:
-        return WebDriverWait(self.browser, 10).until(EC.element_to_be_clickable(tensor_banner_link)).click()
-
-
-
-
-    @property
-    def tensor_banner_is_displayed(self) -> bool:
-        return self.find(tensor_banner_link).is_displayed()
-
-
-    def contacts_section_change_rg_button_link(self) -> str:
-        return self.find(change_rg_link_button)
-
-    @property
-    def contacts_section_change_rg_button_link_is_displayed(self) -> bool:
-        return self.find(change_rg_link_button).is_displayed()
-
-    @property
-    def contacts_section_rg_is_correct(self,browser):
-        partners_list = self.find_all(partner_selector)
-        page_title = self.find(title).text
-        rg_button_change_text = self.contacts_section_change_rg_button_link
-        print(len(partners_list) > 0,page_title,rg_button_change_text)
-        return True if (len(partners_list) > 0) and (page_title.__contains__('Москва')) and (rg_button_change_text.__contains__('Москва')) else False
-
-    def change_rg(self, rg = 41):
-        self.contacts_section_change_rg_button_link().click()
-        WebDriverWait(self.browser, 10).until(
-            EC.visibility_of_element_located(rg_choice_panel)
+    def tensor_banner_link(self, browser) -> Any:
+        return WebDriverWait(self.browser, 10).until(
+            EC.visibility_of_element_located(ContactsPageSelectors.tensor_banner_link)
         )
-        self.find(rg_41_selector).click()
-        partners_list = self.find_all(partner_selector)
-        page_title = self.find(title).text
-        rg_button_change_text = self.contacts_section_change_rg_button_link().text
-        print(len(partners_list) > 0, page_title, rg_button_change_text)
-        return True if (len(partners_list) > 0) and (page_title.__contains__('Москва')) and (
-            rg_button_change_text.__contains__('Москва')) else False
 
+    def tensor_banner_link_click(self, browser) -> Any:
+        return WebDriverWait(self.browser, 10).until(
+            EC.element_to_be_clickable(ContactsPageSelectors.tensor_banner_link)).click()
+
+    def tensor_banner_is_displayed(self, browser) -> bool:
+        return self.tensor_banner_link(browser).is_displayed()
+
+    def contacts_section_change_rg_button_link(self, browser):
+        return WebDriverWait(self.browser, 10).until(
+            EC.visibility_of_element_located(ContactsPageSelectors.change_rg_link_button)
+        )
+
+    def contacts_section_change_rg_button_link_is_displayed(self, browser) -> bool:
+        return self.contacts_section_change_rg_button_link(browser).is_displayed()
+
+    def contacts_section_rg_is_correct(self, browser, region="Москва"):
+        partners_list = self.find_all(ContactsPageSelectors.partner_selector)
+        page_title = browser.title
+        rg_button_change_text = self.contacts_section_change_rg_button_link(browser).text
+
+        # Отладочный вывод:
+        print("⏺ Проверка региона:")
+        print(f"  ▶ Ожидаемый регион: {region}")
+        print(f"  ▶ Кол-во партнёров: {len(partners_list)}")
+        print(f"  ▶ Заголовок страницы: {page_title}")
+        print(f"  ▶ Надпись на кнопке смены региона: {rg_button_change_text}")
+
+        return (len(partners_list) > 0) and (region in page_title) and (region in rg_button_change_text)
+
+    def change_rg(self, browser, rg_name="Камчатский край"):
+        self.contacts_section_change_rg_button_link(browser=self.browser).click()
+
+        WebDriverWait(self.browser, 10).until(
+            EC.visibility_of_element_located(ContactsPageSelectors.rg_choice_panel)
+        )
+
+        rg_to_change = self.find(ContactsPageSelectors.rg_41_selector)
+        self.browser.execute_script("arguments[0].scrollIntoView(true);", rg_to_change)
+        self.browser.execute_script("arguments[0].click()", rg_to_change)
+
+        # Ждём смену текста региона
+        WebDriverWait(self.browser, 10).until(
+            lambda d: rg_name in self.contacts_section_change_rg_button_link(d).text
+        )
+
+        return self.contacts_section_rg_is_correct(browser, rg_name) and browser.current_url.__contains__('41')

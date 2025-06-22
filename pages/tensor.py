@@ -1,5 +1,6 @@
 import allure
 from pages.base_page import BasePage
+from pages.selectors import TensorPageSelectors
 from selenium.webdriver.common.by import By
 from typing import Optional, Dict, Any
 
@@ -8,9 +9,6 @@ from typing import Optional, Dict, Any
 Проверить, что есть блок "Сила в людях",
 Перейти в этом блоке в "Подробнее" и убедиться, что открывается https://tensor.ru/about
 """
-
-power_in_people_block_selector = (By.CSS_SELECTOR, '.tensor_ru-Index__block4-bg')
-get_more_info_link_selector = (By.CSS_SELECTOR, '.tensor_ru-Index__block4-bg a.tensor_ru-link.tensor_ru-Index__link')
 
 
 class TensorPage(BasePage):
@@ -21,10 +19,12 @@ class TensorPage(BasePage):
         """
         super().__init__(browser)
         self.page_url = 'https://tensor.ru/'
+        self.browser = browser
 
     @property
     def tensor_block_exists(self) -> bool:
-        return self.find(power_in_people_block_selector).is_displayed()
+        return self.find(TensorPageSelectors.power_in_people_block_selector).is_displayed()
+
     @property
     def tensor_block_get_more_info_link(self) -> str:
-        return self.find(get_more_info_link_selector).get_attribute('href')
+        return self.find(TensorPageSelectors.get_more_info_link_selector).get_attribute('href')

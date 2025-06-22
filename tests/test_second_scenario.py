@@ -1,11 +1,8 @@
 import allure
-from pages.base_page import BasePage
 from pages.contacts import Contacts
-from pages.tensor import TensorPage
-from pages.tensor_about import TensorAbout
 
 
-@allure.feature('Contacts page, correct user region displayed')
+@allure.feature('Contacts page, correct user region displayed, able to switch it')
 @allure.story('UX')
 def test_check_for_local_user_region(browser):
     contacts_page = Contacts(browser)
@@ -16,6 +13,5 @@ def test_check_for_local_user_region(browser):
     with allure.step('Check that rg is correct'):
         assert contacts_page.contacts_section_rg_is_correct(browser)
 
-
-    #with allure.step('Change rg for Yaroslavl'):
-    #    assert contacts_page.change_rg()
+    with allure.step('Change rg for Kamchatskiy Kray'):
+        assert contacts_page.change_rg(browser)

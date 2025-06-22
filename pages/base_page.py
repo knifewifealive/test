@@ -1,5 +1,6 @@
 import allure
 from attr.converters import optional
+from pages.selectors import BasePageSelectors
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.wait import WebDriverWait
@@ -11,12 +12,9 @@ from typing import Optional, Dict, Any
 регионе)
 """
 
-contact_button_to_pop_up = (By.CSS_SELECTOR, '.sbisru-Header-ContactsMenu.js-ContactsMenu')
-more_offices_in_regions_link = (By.CSS_SELECTOR, '.sbisru-Header-ContactsMenu__items > .sbisru-link.sbis_ru-link > span')
-
 
 class BasePage:
-    def __init__(self,browser):
+    def __init__(self, browser):
         self.browser = browser
         """
         При наследовании от этого класса, нужно переопределить аттрибут page_url, который будет хранить в себе
@@ -56,16 +54,17 @@ class BasePage:
                 print(f'!Error, unable to open {target_url}: {e}')
                 raise  # если не откроется, то я все
 
-
     @property
     def contacts_button_link(self) -> Any:
         """
 
         :return: #Веб-драйвер объект кнопки-ссылки на поп-ап контактов на главной
         """
-        return self.find(contact_button_to_pop_up)
+        return WebDriverWait(self.browser, 10).until(
+            EC.visibility_of_element_located(BasePageSelectors.contact_button_to_pop_up)
+        )
 
-    #Проверка на существование кнопки-ссылки в хедере
+    # Проверка на существование кнопки-ссылки в хедере
     @property
     def contacts_button_is_displayed(self: Any) -> bool:
         """
@@ -85,7 +84,7 @@ class BasePage:
     def find_region_link(self) -> Any:
         self.contacts_button_click()
         return WebDriverWait(self.browser, 10).until(
-            EC.visibility_of_element_located(more_offices_in_regions_link)
+            EC.visibility_of_element_located(BasePageSelectors.more_offices_in_regions_link)
         )
 
     @property
@@ -101,3 +100,12 @@ class BasePage:
         Clicks on region link in header
         """
         self.find_region_link().click()
+
+    def download_link(self):
+        return WebDriverWait(self.browser, 10).until(
+            EC.visibility_of_element_located(BasePageSelectors.download_page_link)
+        )
+
+    @property
+    def download_link_is_displayed(self) -> bool:
+        return self.download_link().is_displayed()
