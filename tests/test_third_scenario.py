@@ -28,3 +28,5 @@ def test_able_to_download(browser):
         expected_file_size = SM.get_size_of_file(download_page.download_link_button().text)
         actual_size_mb = round(downloaded_file.stat().st_size / (1024 * 1024), 2)
         assert actual_size_mb == expected_file_size
+    with allure.step('Delete file from OS'):
+        assert SM.delete_file(downloaded_file)

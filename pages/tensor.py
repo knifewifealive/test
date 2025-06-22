@@ -1,9 +1,7 @@
-import allure
 from pages.base_page import BasePage
 from pages.selectors import TensorPageSelectors
-from selenium.webdriver.common.by import By
-from typing import Optional, Dict, Any
-
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 """
 Перейти на https://tensor.ru/,
 Проверить, что есть блок "Сила в людях",
@@ -20,6 +18,11 @@ class TensorPage(BasePage):
         super().__init__(browser)
         self.page_url = 'https://tensor.ru/'
         self.browser = browser
+
+    def tensor_block(self):
+        return WebDriverWait(self.browser, 10).until(
+            EC.element_to_be_clickable(TensorPageSelectors.power_in_people_block_selector)
+        )
 
     @property
     def tensor_block_exists(self) -> bool:

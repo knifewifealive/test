@@ -20,3 +20,11 @@ class StaticMethods:
                 return files[0]
             time.sleep(1)
         raise TimeoutError("Файл не скачался за отведённое время")
+
+    @staticmethod
+    def delete_file(file):
+        if Path.exists(file):
+            Path.unlink(file)
+            return True
+        else:
+            return False

@@ -42,6 +42,9 @@ class Contacts(BasePage):
         return self.contacts_section_change_rg_button_link(browser).is_displayed()
 
     def contacts_section_rg_is_correct(self, browser, region="Москва"):
+        WebDriverWait(self.browser, 10).until(
+            EC.visibility_of_element_located(ContactsPageSelectors.partner_selector)
+        )
         partners_list = self.find_all(ContactsPageSelectors.partner_selector)
         page_title = browser.title
         rg_button_change_text = self.contacts_section_change_rg_button_link(browser).text

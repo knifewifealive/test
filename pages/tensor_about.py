@@ -1,8 +1,7 @@
-import allure
 from pages.base_page import BasePage
 from pages.selectors import TensorAboutPageSelectors
-from selenium.webdriver.common.by import By
-from typing import Any
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 """
 Находим раздел Работаем и проверяем, что у всех фотографии
@@ -21,12 +20,14 @@ class TensorAbout(BasePage):
         self.browser = browser
 
     @property
-    def work_block(self) -> Any:
-        return self.find(TensorAboutPageSelectors.work_block_selector)
+    def work_block(self):
+        return WebDriverWait(self.browser, 10).until(
+            EC.element_to_be_clickable(TensorAboutPageSelectors.work_block_selector)
+        )
 
     @property
     def work_block_exists(self) -> bool:
-        return self.find(TensorAboutPageSelectors.work_block_selector).is_displayed()
+        return self.work_block.is_displayed()
 
     @property
     def work_block_containts_equal_imgs(self) -> bool:

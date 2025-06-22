@@ -1,10 +1,12 @@
+import allure
+import base64
 import os.path
 import pytest
+from allure_commons.types import AttachmentType
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 
 DOWNLOAD_PATH = os.path.abspath("./tests/")
-
 
 @pytest.fixture(scope="session")
 def browser():
@@ -20,3 +22,20 @@ def browser():
     driver = webdriver.Chrome(options=gchr_options)
     yield driver
     driver.quit()
+
+@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+def pytest_runtest_makereport(item, call):
+    # Получаем результат выполнения теста
+    outcome = yield
+    result = outcome.get_result()
+
+    # Проверяем, что это фаза call (исполнение) и тест провалился
+    if result.when == "call" and result.failed:
+        # Получаем браузер из фикстуры
+        browser = item.funcargs.get("browser", None)
+        if browser:
+            allure.attach(
+                browser.get_screenshot_as_png(),
+                name="Screenshot on failure",
+                attachment_type=AttachmentType.PNG
+            )
